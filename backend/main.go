@@ -1,19 +1,15 @@
 package main
 
-import (
-	"log"
-
-	"github.com/gofiber/fiber/v3"
-	"github.com/joho/godotenv"
-
-	"shop-backend/routes"
-)
+import "github.com/gin-gonic/gin"
 
 func main() {
-	_ = godotenv.Load()
+	r := gin.Default()
 
-	app := fiber.New()
-	routes.RegisterAIRoutes(app)
+	r.GET("/health", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "API running",
+		})
+	})
 
-	log.Fatal(app.Listen(":8080"))
+	r.Run(":8080")
 }
