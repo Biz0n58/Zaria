@@ -4,17 +4,12 @@ services:
     container_name: zaria_db
     environment:
       POSTGRES_USER: zaria
-      POSTGRES_PASSWORD: zaria_pass
+      POSTGRES_PASSWORD: zaria
       POSTGRES_DB: zaria
     ports:
       - "5432:5432"
     volumes:
-      - zaria_pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U zaria -d zaria"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      - zaria_pg:/var/lib/postgresql/data
 
 volumes:
-  zaria_pgdata:
+  zaria_pg:
