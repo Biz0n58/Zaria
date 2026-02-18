@@ -34,14 +34,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     };
   }, [lang]);
 
-  // نلف التطبيق داخل div عشان نطبق dir على كل الصفحات تحت
-  return (
-    <LangContext.Provider value={value}>
-      <div dir={value.dir} lang={value.lang}>
-        {children}
-      </div>
-    </LangContext.Provider>
-  );
+  return <LangContext.Provider value={value}>{children}</LangContext.Provider>;
 }
 
 export function useLang() {

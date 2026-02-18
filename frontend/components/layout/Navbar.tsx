@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useLang } from "../lang/LanguageProvider";
+import { useLang } from "@/components/lang/LanguageProvider";
 import styles from "./navbar.module.css";
 
 export default function Navbar() {
@@ -9,34 +9,20 @@ export default function Navbar() {
 
   const labels =
     lang === "ar"
-      ? { home: "الرئيسية", products: "المنتجات", cart: "السلة", toggle: "English" }
-      : { home: "Home", products: "Products", cart: "Cart", toggle: "العربية" };
+      ? { home: "الرئيسية", products: "المنتجات", dashboard: "لوحة الموظفين", toggle: "English" }
+      : { home: "Home", products: "Products", dashboard: "Employee Dashboard", toggle: "العربية" };
 
   return (
     <header className={styles.header}>
       <div className={styles.container}>
-        <Link href="/" className={styles.logo}>
-          ZARIA
-        </Link>
+        <Link href="/" className={styles.logo}>ZARIA</Link>
 
         <nav className={styles.nav}>
-          <Link href="/" className={styles.link}>
-            {labels.home}
-          </Link>
+          <Link href="/" className={styles.link}>{labels.home}</Link>
+          <Link href="/products" className={styles.link}>{labels.products}</Link>
+          <Link href="/dashboard" className={styles.link}>{labels.dashboard}</Link>
 
-          <Link href="/products" className={styles.link}>
-            {labels.products}
-          </Link>
-
-          <Link href="/cart" className={styles.link}>
-            {labels.cart}
-          </Link>
-
-          <button
-            type="button"
-            onClick={toggleLang}
-            className={styles.langButton}
-          >
+          <button type="button" onClick={toggleLang} className={styles.langButton}>
             {labels.toggle}
           </button>
         </nav>
