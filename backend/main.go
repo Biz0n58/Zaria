@@ -7,6 +7,7 @@ import (
 	"github.com/joho/godotenv"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 
 	"github.com/Biz0n58/Zaria/backend/config"
@@ -18,9 +19,15 @@ func main() {
 
 	app := fiber.New()
 
+	// CORS
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "http://localhost:3000",
+		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
+	}))
+
 	app.Use(logger.New())
 
-	// Database connection
+	// Database
 	db, err := config.NewDBPool()
 	if err != nil {
 		log.Fatal(err)
@@ -34,12 +41,12 @@ func main() {
 		})
 	})
 
-	// Register routes
+	// Routes
 	routes.Register(app, db)
 
 	port := os.Getenv("APP_PORT")
 	if port == "" {
-		port = "3000"
+		port = "4000"
 	}
 
 	log.Println("Server running on port", port)
