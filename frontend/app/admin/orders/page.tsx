@@ -84,7 +84,9 @@ export default function AdminOrdersPage() {
         <h1 className="text-3xl font-bold text-gray-900 mb-8">Orders</h1>
 
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+          <label htmlFor="status-filter" className="sr-only">Filter by status</label>
           <select
+            id="status-filter"
             value={statusFilter}
             onChange={(e) => {
               setStatusFilter(e.target.value);

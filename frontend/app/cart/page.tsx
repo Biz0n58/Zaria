@@ -12,10 +12,16 @@ export default function CartPage() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [products, setProducts] = useState<Record<string, Product>>({});
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const items = cart.get();
     setCartItems(items);
+
+    if (items.length === 0) {
+      setLoading(false);
+      return;
+    }
 
     Promise.all(items.map((item) => api.products.getById(item.product_id)))
       .then((prods) => {
@@ -24,8 +30,11 @@ export default function CartPage() {
           prodMap[prod.id] = prod;
         });
         setProducts(prodMap);
+        setError(null);
       })
-      .catch(() => {})
+      .catch(() => {
+        setError('Failed to load products');
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -49,6 +58,22 @@ export default function CartPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-xl">Loading...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+          >
+            Retry
+          </button>
+        </div>
       </div>
     );
   }

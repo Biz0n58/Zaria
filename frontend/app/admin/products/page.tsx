@@ -101,7 +101,9 @@ export default function AdminProductsPage() {
               placeholder="Search products..."
               className="flex-1 px-4 py-2 border border-gray-300 rounded-lg"
             />
+            <label htmlFor="status-filter" className="sr-only">Filter by status</label>
             <select
+              id="status-filter"
               value={isActiveFilter}
               onChange={(e) => {
                 setIsActiveFilter(e.target.value);

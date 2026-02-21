@@ -2,14 +2,12 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
 	"sort"
 
 	"github.com/Biz0n58/Zaria/backend/config"
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func main() {
