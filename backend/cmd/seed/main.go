@@ -6,8 +6,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/Biz0n58/Zaria/backend/config"
-	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/Biz0n58/Zaria/backend/internal/db"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -18,11 +17,11 @@ func main() {
 	_ = os.Setenv("DB_PASSWORD", getEnv("DB_PASSWORD", "zaria"))
 	_ = os.Setenv("DB_NAME", getEnv("DB_NAME", "zaria"))
 
-	db, err := config.NewDBPool()
+	database, err := db.NewPool()
 	if err != nil {
 		log.Fatal("Failed to connect to database:", err)
 	}
-	defer db.Close()
+	defer database.Close()
 
 	email := "admin@zaria.com"
 	password := "admin123"
@@ -33,10 +32,10 @@ func main() {
 	}
 
 	var existingID string
-	err = db.QueryRow(context.Background(), "SELECT id FROM admins WHERE email = $1", email).Scan(&existingID)
+	err = database.QueryRow(context.Background(), "SELECT id FROM admins WHERE email = $1", email).Scan(&existingID)
 	if err == nil {
 		log.Printf("Admin with email %s already exists, updating password...", email)
-		_, err = db.Exec(context.Background(), "UPDATE admins SET password_hash = $1 WHERE email = $2", hashedPassword, email)
+		_, err = database.Exec(context.Background(), "UPDATE admins SET password_hash = $1 WHERE email = $2", hashedPassword, email)
 		if err != nil {
 			log.Fatal("Failed to update admin:", err)
 		}
@@ -44,7 +43,7 @@ func main() {
 		return
 	}
 
-	_, err = db.Exec(
+	_, err = database.Exec(
 		context.Background(),
 		"INSERT INTO admins (email, password_hash) VALUES ($1, $2) ON CONFLICT (email) DO UPDATE SET password_hash = $2",
 		email, hashedPassword,

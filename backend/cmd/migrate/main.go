@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"sort"
 
-	"github.com/Biz0n58/Zaria/backend/config"
+	"github.com/Biz0n58/Zaria/backend/internal/db"
 )
 
 func main() {
@@ -17,13 +17,13 @@ func main() {
 	_ = os.Setenv("DB_PASSWORD", getEnv("DB_PASSWORD", "zaria"))
 	_ = os.Setenv("DB_NAME", getEnv("DB_NAME", "zaria"))
 
-	db, err := config.NewDBPool()
+	database, err := db.NewPool()
 	if err != nil {
 		log.Fatal("Failed to connect to database:", err)
 	}
-	defer db.Close()
+	defer database.Close()
 
-	migrationsDir := filepath.Join("..", "..", "migrations")
+	migrationsDir := filepath.Join("..", "..", "internal", "migrations")
 	files, err := filepath.Glob(filepath.Join(migrationsDir, "*.sql"))
 	if err != nil {
 		log.Fatal("Failed to read migrations directory:", err)
@@ -38,7 +38,7 @@ func main() {
 			log.Fatal("Failed to read migration file:", err)
 		}
 
-		_, err = db.Exec(context.Background(), string(sql))
+		_, err = database.Exec(context.Background(), string(sql))
 		if err != nil {
 			log.Fatal("Failed to execute migration:", err)
 		}
