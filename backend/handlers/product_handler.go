@@ -113,6 +113,35 @@ func (h *ProductHandler) GetProducts(c *fiber.Ctx) error {
 	})
 }
 
+func (h *ProductHandler) GetPublicProducts(c *fiber.Ctx) error {
+	rows, err := h.DB.Query(
+		c.Context(),
+		`SELECT id, name, description, price_cents, currency, image_url, stock, is_active, created_at, updated_at 
+		 FROM products 
+		 WHERE is_active = true
+		 ORDER BY created_at DESC`,
+	)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "failed to fetch products"})
+	}
+	defer rows.Close()
+
+	products := []models.Product{}
+	for rows.Next() {
+		var p models.Product
+		err := rows.Scan(
+			&p.ID, &p.Name, &p.Description, &p.PriceCents, &p.Currency,
+			&p.ImageURL, &p.Stock, &p.IsActive, &p.CreatedAt, &p.UpdatedAt,
+		)
+		if err != nil {
+			return c.Status(500).JSON(fiber.Map{"error": "failed to scan product"})
+		}
+		products = append(products, p)
+	}
+
+	return c.JSON(products)
+}
+
 func (h *ProductHandler) GetProduct(c *fiber.Ctx) error {
 	productID := c.Params("id")
 	productUUID, err := uuid.Parse(productID)

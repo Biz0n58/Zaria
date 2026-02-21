@@ -25,7 +25,7 @@ func Register(app *fiber.App, db *pgxpool.Pool) {
 	admin.Put("/products/:id", productHandler.UpdateProduct)
 	admin.Delete("/products/:id", productHandler.DeleteProduct)
 
-	app.Get("/api/products", productHandler.GetProducts)
+	app.Get("/api/products", productHandler.GetPublicProducts)
 	app.Get("/api/products/:id", productHandler.GetProduct)
 
 	app.Post("/api/checkout", checkoutHandler.CreateOrder)
