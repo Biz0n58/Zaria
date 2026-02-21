@@ -20,8 +20,12 @@ export default function ProductPage() {
       api.products
         .getById(params.id as string)
         .then((data) => {
-          setProduct(data);
-          setError(null);
+          if (!data.is_active) {
+            setError('Product is not available');
+          } else {
+            setProduct(data);
+            setError(null);
+          }
         })
         .catch(() => {
           setError('Product not found');
@@ -104,8 +108,9 @@ export default function ProductPage() {
                 <p className="text-sm text-gray-500 mb-2">Stock: {product.stock}</p>
                 {product.stock > 0 && product.is_active && (
                   <div className="flex items-center space-x-4">
-                    <label className="text-sm font-medium text-gray-700">Quantity:</label>
+                    <label htmlFor="qty" className="text-sm font-medium text-gray-700">Quantity:</label>
                     <input
+                      id="qty"
                       type="number"
                       min="1"
                       max={product.stock}

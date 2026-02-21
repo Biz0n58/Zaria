@@ -28,20 +28,22 @@ export default function NewProductPage() {
       if (!formData.name.trim()) {
         throw new Error('Name is required');
       }
-      if (parseFloat(formData.price_cents) <= 0) {
+      const price = parseFloat(formData.price_cents);
+      if (isNaN(price) || price <= 0) {
         throw new Error('Price must be positive');
       }
-      if (parseInt(formData.stock) < 0) {
+      const stock = parseInt(formData.stock);
+      if (isNaN(stock) || stock < 0) {
         throw new Error('Stock must be non-negative');
       }
 
       await adminApi.products.create({
         name: formData.name,
         description: formData.description,
-        price_cents: Math.round(parseFloat(formData.price_cents) * 100),
+        price_cents: Math.round(price * 100),
         currency: formData.currency,
         image_url: formData.image_url,
-        stock: parseInt(formData.stock) || 0,
+        stock: stock,
         is_active: formData.is_active,
       });
 
@@ -80,8 +82,9 @@ export default function NewProductPage() {
         <div className="bg-white rounded-lg shadow-md p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Name *</label>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">Name *</label>
               <input
+                id="name"
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -90,8 +93,9 @@ export default function NewProductPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+              <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">Description</label>
               <textarea
+                id="description"
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={4}
@@ -100,10 +104,12 @@ export default function NewProductPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Price (USD) *</label>
+                <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-2">Price (USD) *</label>
                 <input
+                  id="price"
                   type="number"
                   step="0.01"
+                  min="0.01"
                   value={formData.price_cents}
                   onChange={(e) => setFormData({ ...formData, price_cents: e.target.value })}
                   required
@@ -111,20 +117,22 @@ export default function NewProductPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Stock *</label>
+                <label htmlFor="stock" className="block text-sm font-medium text-gray-700 mb-2">Stock *</label>
                 <input
+                  id="stock"
                   type="number"
+                  min="0"
                   value={formData.stock}
                   onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
                   required
-                  min="0"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg"
                 />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Image URL</label>
+              <label htmlFor="image_url" className="block text-sm font-medium text-gray-700 mb-2">Image URL</label>
               <input
+                id="image_url"
                 type="url"
                 value={formData.image_url}
                 onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
