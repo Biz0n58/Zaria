@@ -9,6 +9,11 @@ import (
 
 func Protected(c *fiber.Ctx) error {
 	secret := os.Getenv("JWT_SECRET")
+	if secret == "" {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "server configuration error",
+		})
+	}
 
 	return jwtware.New(jwtware.Config{
 		SigningKey: jwtware.SigningKey{

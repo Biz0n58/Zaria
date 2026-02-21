@@ -19,29 +19,26 @@ func main() {
 
 	app := fiber.New()
 
-	// CORS
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "http://localhost:3000",
-		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
+		AllowOrigins:     "http://localhost:3000",
+		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
+		AllowCredentials: true,
 	}))
 
 	app.Use(logger.New())
 
-	// Database
 	db, err := config.NewDBPool()
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
 
-	// Health check
 	app.Get("/health", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{
 			"status": "ok",
 		})
 	})
 
-	// Routes
 	routes.Register(app, db)
 
 	port := os.Getenv("APP_PORT")

@@ -9,18 +9,26 @@ import (
 )
 
 func Register(app *fiber.App, db *pgxpool.Pool) {
-	// existing admin routes (login + orders)
-	AdminRoutes(app, db)
+	adminHandler := handlers.NewAdminHandler(db)
+	productHandler := handlers.NewProductHandler(db)
+	checkoutHandler := handlers.NewCheckoutHandler(db)
+	paymentHandler := handlers.NewPaymentHandler(db)
 
-	ph := handlers.NewProductHandler(db)
+	app.Post("/api/admin/auth/login", adminHandler.Login)
 
-	// public routes
-	app.Get("/api/products", ph.GetProducts)
-	app.Get("/api/products/:id", ph.GetProduct)
-
-	// protected admin routes
 	admin := app.Group("/api/admin", middleware.Protected)
-	admin.Post("/products", ph.CreateProduct)
-	admin.Put("/products/:id", ph.UpdateProduct)
-	admin.Delete("/products/:id", ph.DeleteProduct)
+	admin.Get("/orders", adminHandler.GetOrders)
+	admin.Get("/orders/:id", adminHandler.GetOrder)
+	admin.Patch("/orders/:id/status", adminHandler.UpdateOrderStatus)
+	admin.Get("/products", productHandler.GetProducts)
+	admin.Post("/products", productHandler.CreateProduct)
+	admin.Put("/products/:id", productHandler.UpdateProduct)
+	admin.Delete("/products/:id", productHandler.DeleteProduct)
+
+	app.Get("/api/products", productHandler.GetProducts)
+	app.Get("/api/products/:id", productHandler.GetProduct)
+
+	app.Post("/api/checkout", checkoutHandler.CreateOrder)
+	app.Post("/api/payments/stripe/create-intent", paymentHandler.CreateStripeIntent)
+	app.Post("/api/payments/stripe/webhook", paymentHandler.StripeWebhook)
 }
