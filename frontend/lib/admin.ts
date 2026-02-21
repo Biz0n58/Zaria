@@ -26,6 +26,13 @@ async function adminFetch(endpoint: string, options: RequestInit = {}) {
     },
   });
 
+  if (response.status === 401) {
+    if (typeof window !== 'undefined' && !window.location.pathname.includes('/admin/login')) {
+      window.location.href = '/admin/login';
+    }
+    throw new Error('Unauthorized');
+  }
+
   if (!response.ok) {
     const error = await response.json().catch(() => ({ error: 'Request failed' }));
     throw new Error(error.error || 'Request failed');

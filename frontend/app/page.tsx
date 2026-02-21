@@ -14,7 +14,7 @@ export default function Home() {
     api.products
       .getAll()
       .then(setProducts)
-      .catch(console.error)
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 

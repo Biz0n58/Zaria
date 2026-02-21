@@ -19,7 +19,7 @@ export default function ProductPage() {
       api.products
         .getById(params.id as string)
         .then(setProduct)
-        .catch(console.error)
+        .catch(() => {})
         .finally(() => setLoading(false));
     }
   }, [params.id]);

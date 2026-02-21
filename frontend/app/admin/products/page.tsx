@@ -10,6 +10,7 @@ export default function AdminProductsPage() {
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [isActiveFilter, setIsActiveFilter] = useState<string>('');
   const [page, setPage] = useState(1);
@@ -18,10 +19,11 @@ export default function AdminProductsPage() {
 
   useEffect(() => {
     loadProducts();
-  }, [page, isActiveFilter, search]);
+  }, [page, isActiveFilter]);
 
   const loadProducts = async () => {
     setLoading(true);
+    setError(null);
     try {
       const params: any = { page, limit };
       if (search) params.search = search;
@@ -30,9 +32,12 @@ export default function AdminProductsPage() {
       const response = await adminApi.products.getAll(params);
       setProducts(response.products || []);
       setTotal(response.total || 0);
-    } catch (error) {
-      console.error(error);
-      router.push('/admin/login');
+    } catch (err: any) {
+      if (err.message === 'Unauthorized' || err.message === 'Not authenticated') {
+        router.push('/admin/login');
+      } else {
+        setError(err.message || 'Failed to load products');
+      }
     } finally {
       setLoading(false);
     }
@@ -43,9 +48,8 @@ export default function AdminProductsPage() {
     try {
       await adminApi.products.delete(id);
       loadProducts();
-    } catch (error) {
-      console.error(error);
-      alert('Failed to delete product');
+    } catch (err: any) {
+      alert(err.message || 'Failed to delete product');
     }
   };
 
@@ -117,6 +121,12 @@ export default function AdminProductsPage() {
             </button>
           </form>
         </div>
+
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+            {error}
+          </div>
+        )}
 
         {loading ? (
           <div className="text-center py-12">

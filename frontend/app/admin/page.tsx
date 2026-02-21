@@ -14,6 +14,7 @@ export default function AdminDashboard() {
     pendingOrders: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadStats = async () => {
@@ -32,9 +33,13 @@ export default function AdminDashboard() {
           totalOrders: orders.total || 0,
           pendingOrders: pendingOrders.total || 0,
         });
-      } catch (error) {
-        console.error(error);
-        router.push('/admin/login');
+        setError(null);
+      } catch (err: any) {
+        if (err.message === 'Unauthorized' || err.message === 'Not authenticated') {
+          router.push('/admin/login');
+        } else {
+          setError('Failed to load dashboard stats');
+        }
       } finally {
         setLoading(false);
       }
@@ -43,7 +48,10 @@ export default function AdminDashboard() {
   }, [router]);
 
   const handleLogout = async () => {
-    await fetch('/api/admin/logout', { method: 'POST' });
+    try {
+      await fetch('/api/admin/logout', { method: 'POST' });
+    } catch {
+    }
     router.push('/admin/login');
   };
 
@@ -51,6 +59,22 @@ export default function AdminDashboard() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-xl">Loading...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+          >
+            Retry
+          </button>
+        </div>
       </div>
     );
   }

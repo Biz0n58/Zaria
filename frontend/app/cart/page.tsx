@@ -25,7 +25,7 @@ export default function CartPage() {
         });
         setProducts(prodMap);
       })
-      .catch(console.error)
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
