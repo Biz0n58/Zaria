@@ -6,8 +6,14 @@ export function middleware(request: NextRequest) {
 
   if (request.nextUrl.pathname.startsWith('/admin') && request.nextUrl.pathname !== '/admin/login') {
     if (!token) {
-      return NextResponse.redirect(new URL('/admin/login', request.url));
+      const loginUrl = new URL('/admin/login', request.url);
+      return NextResponse.redirect(loginUrl);
     }
+  }
+
+  if (request.nextUrl.pathname === '/admin/login' && token) {
+    const adminUrl = new URL('/admin', request.url);
+    return NextResponse.redirect(adminUrl);
   }
 
   return NextResponse.next();

@@ -9,12 +9,18 @@ import { cart } from '@/lib/cart';
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     api.products
       .getAll()
-      .then(setProducts)
-      .catch(console.error)
+      .then((data) => {
+        setProducts(Array.isArray(data) ? data : []);
+        setError(null);
+      })
+      .catch(() => {
+        setError('Failed to load products');
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -27,6 +33,22 @@ export default function Home() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-xl">Loading...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+          >
+            Retry
+          </button>
+        </div>
       </div>
     );
   }
@@ -78,17 +100,17 @@ export default function Home() {
                   </span>
                   <button
                     onClick={() => handleAddToCart(product.id)}
-                    disabled={product.stock === 0}
+                    disabled={product.stock === 0 || !product.is_active}
                     className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
                   >
-                    {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+                    {product.stock === 0 ? 'Out of Stock' : !product.is_active ? 'Unavailable' : 'Add to Cart'}
                   </button>
                 </div>
               </div>
             </div>
           ))}
         </div>
-        {products.length === 0 && (
+        {products.length === 0 && !error && (
           <div className="text-center py-12">
             <p className="text-gray-500">No products available</p>
           </div>

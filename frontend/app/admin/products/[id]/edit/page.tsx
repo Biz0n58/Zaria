@@ -42,9 +42,12 @@ export default function EditProductPage() {
         stock: data.stock.toString(),
         is_active: data.is_active,
       });
-    } catch (error) {
-      console.error(error);
-      router.push('/admin/products');
+    } catch (err: any) {
+      if (err.message === 'Unauthorized' || err.message === 'Not authenticated') {
+        router.push('/admin/login');
+      } else {
+        router.push('/admin/products');
+      }
     } finally {
       setLoading(false);
     }

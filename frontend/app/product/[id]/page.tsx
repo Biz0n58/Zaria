@@ -12,14 +12,20 @@ export default function ProductPage() {
   const router = useRouter();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [qty, setQty] = useState(1);
 
   useEffect(() => {
     if (params.id) {
       api.products
         .getById(params.id as string)
-        .then(setProduct)
-        .catch(console.error)
+        .then((data) => {
+          setProduct(data);
+          setError(null);
+        })
+        .catch(() => {
+          setError('Product not found');
+        })
         .finally(() => setLoading(false));
     }
   }, [params.id]);
@@ -39,10 +45,15 @@ export default function ProductPage() {
     );
   }
 
-  if (!product) {
+  if (error || !product) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl">Product not found</div>
+        <div className="text-center">
+          <p className="text-red-600 mb-4">{error || 'Product not found'}</p>
+          <Link href="/" className="text-blue-600 hover:text-blue-800">
+            Back to Products
+          </Link>
+        </div>
       </div>
     );
   }
@@ -91,7 +102,7 @@ export default function ProductPage() {
               </div>
               <div className="mb-6">
                 <p className="text-sm text-gray-500 mb-2">Stock: {product.stock}</p>
-                {product.stock > 0 && (
+                {product.stock > 0 && product.is_active && (
                   <div className="flex items-center space-x-4">
                     <label className="text-sm font-medium text-gray-700">Quantity:</label>
                     <input
@@ -107,10 +118,10 @@ export default function ProductPage() {
               </div>
               <button
                 onClick={handleAddToCart}
-                disabled={product.stock === 0}
+                disabled={product.stock === 0 || !product.is_active}
                 className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed font-semibold"
               >
-                {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+                {product.stock === 0 ? 'Out of Stock' : !product.is_active ? 'Unavailable' : 'Add to Cart'}
               </button>
             </div>
           </div>

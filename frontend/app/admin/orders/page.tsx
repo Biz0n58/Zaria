@@ -10,6 +10,7 @@ export default function AdminOrdersPage() {
   const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState('');
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
@@ -21,6 +22,7 @@ export default function AdminOrdersPage() {
 
   const loadOrders = async () => {
     setLoading(true);
+    setError(null);
     try {
       const params: any = { page, limit };
       if (statusFilter) params.status = statusFilter;
@@ -28,9 +30,12 @@ export default function AdminOrdersPage() {
       const response = await adminApi.orders.getAll(params);
       setOrders(response.orders || []);
       setTotal(response.total || 0);
-    } catch (error) {
-      console.error(error);
-      router.push('/admin/login');
+    } catch (err: any) {
+      if (err.message === 'Unauthorized' || err.message === 'Not authenticated') {
+        router.push('/admin/login');
+      } else {
+        setError(err.message || 'Failed to load orders');
+      }
     } finally {
       setLoading(false);
     }
@@ -95,6 +100,12 @@ export default function AdminOrdersPage() {
             <option value="cancelled">Cancelled</option>
           </select>
         </div>
+
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+            {error}
+          </div>
+        )}
 
         {loading ? (
           <div className="text-center py-12">

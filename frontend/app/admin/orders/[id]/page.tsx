@@ -12,6 +12,7 @@ export default function OrderDetailsPage() {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (params.id) {
@@ -23,9 +24,13 @@ export default function OrderDetailsPage() {
     try {
       const data = await adminApi.orders.getById(params.id as string);
       setOrder(data);
-    } catch (error) {
-      console.error(error);
-      router.push('/admin/orders');
+      setError(null);
+    } catch (err: any) {
+      if (err.message === 'Unauthorized' || err.message === 'Not authenticated') {
+        router.push('/admin/login');
+      } else {
+        setError(err.message || 'Failed to load order');
+      }
     } finally {
       setLoading(false);
     }
@@ -34,12 +39,12 @@ export default function OrderDetailsPage() {
   const updateStatus = async (status: string) => {
     if (!confirm(`Change order status to ${status}?`)) return;
     setUpdating(true);
+    setError(null);
     try {
       await adminApi.orders.updateStatus(params.id as string, status);
       loadOrder();
-    } catch (error) {
-      console.error(error);
-      alert('Failed to update order status');
+    } catch (err: any) {
+      setError(err.message || 'Failed to update order status');
     } finally {
       setUpdating(false);
     }
@@ -56,7 +61,18 @@ export default function OrderDetailsPage() {
   if (!order) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl">Order not found</div>
+        <div className="text-center">
+          {error ? (
+            <>
+              <p className="text-red-600 mb-4">{error}</p>
+              <Link href="/admin/orders" className="text-blue-600 hover:text-blue-800">
+                Back to Orders
+              </Link>
+            </>
+          ) : (
+            <p className="text-xl">Order not found</p>
+          )}
+        </div>
       </div>
     );
   }
@@ -101,6 +117,12 @@ export default function OrderDetailsPage() {
             ← Back to Orders
           </Link>
         </div>
+
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+            {error}
+          </div>
+        )}
 
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <div className="flex justify-between items-start mb-6">
