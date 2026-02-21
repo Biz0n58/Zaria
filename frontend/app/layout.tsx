@@ -1,5 +1,6 @@
 import "./globals.css";
 import { LanguageProvider } from "@/components/lang/LanguageProvider";
+import { AuthProvider } from "@/components/auth/AuthProvider";
 import Navbar from "@/components/layout/Navbar";
 
 export default function RootLayout({
@@ -11,8 +12,10 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <LanguageProvider>
-          <Navbar />
-          {children}
+          <AuthProvider>
+            <Navbar />
+            {children}
+          </AuthProvider>
         </LanguageProvider>
       </body>
     </html>
